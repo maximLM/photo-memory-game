@@ -88,6 +88,26 @@
         .hidden {
             display: none;
         }
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -177,22 +197,75 @@
             constructor(playerNames, fieldSize) {
                 this.playerNames = playerNames;
                 this.fieldSize = fieldSize;
-                this.cards = this.generateCards();
                 this.flippedCards = [];
                 this.scores = new Array(playerNames.length).fill(0);
                 this.currentPlayer = 0;
                 this.isProcessing = false;
-                this.renderScoreBoard();
-                this.renderBoard();
+                
+                // List of available images (will be populated)
+                this.availableImages = [];
+                
+                // Add loading screen
+                this.showLoadingScreen();
+                
+                // Initialize game after images are loaded
+                this.initializeGame();
+            }
+
+            async showLoadingScreen() {
+                const gameContainer = document.getElementById('gameContainer');
+                gameContainer.innerHTML = `
+                    <div class="loading-screen">
+                        <h2>Loading images...</h2>
+                        <div class="loading-spinner"></div>
+                    </div>
+                `;
+            }
+
+            async initializeGame() {
+                try {
+                    // Get list of available images from GitHub
+                    const response = await fetch('https://raw.githubusercontent.com/maximLM/photo-memory-game/main/images.json');
+                    if (!response.ok) throw new Error('Failed to load image list');
+                    
+                    this.availableImages = await response.json();
+                    
+                    // Check if we have enough images
+                    const requiredPairs = (this.fieldSize * this.fieldSize) / 2;
+                    if (this.availableImages.length < requiredPairs) {
+                        throw new Error(`Not enough images. Need ${requiredPairs} but only found ${this.availableImages.length}`);
+                    }
+
+                    // Preload images
+                    const imagesLoaded = await this.preloadImages();
+                    if (!imagesLoaded) throw new Error('Failed to load images');
+
+                    // Generate cards and render game
+                    this.cards = this.generateCards();
+                    this.renderScoreBoard();
+                    this.renderBoard();
+
+                } catch (error) {
+                    console.error('Game initialization failed:', error);
+                    alert(error.message || 'Failed to initialize game. Please try again.');
+                    resetGame();
+                }
             }
 
             generateCards() {
                 const numPairs = (this.fieldSize * this.fieldSize) / 2;
                 let cards = [];
-                for (let i = 1; i <= numPairs; i++) {
-                    cards.push({ id: i, imageUrl: `https://picsum.photos/150?random=${i}` });
-                    cards.push({ id: i, imageUrl: `https://picsum.photos/150?random=${i}` });
-                }
+                
+                // Randomly select images from available ones
+                const selectedImages = this.shuffleCards([...this.availableImages])
+                    .slice(0, numPairs);
+                
+                // Create pairs for selected images
+                selectedImages.forEach((imageUrl, index) => {
+                    cards.push({ id: index, imageUrl: imageUrl });
+                    cards.push({ id: index, imageUrl: imageUrl });
+                });
+                
                 return this.shuffleCards(cards);
             }
 
@@ -327,6 +400,25 @@
                         resetGame();
                     }
                 }, 500);
+            }
+
+            async preloadImages() {
+                const loadPromises = this.availableImages.map(imageUrl => 
+                    new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = resolve;
+                        img.onerror = () => reject(`Failed to load image ${imageUrl}`);
+                        img.src = imageUrl;
+                    })
+                );
+
+                try {
+                    await Promise.all(loadPromises);
+                    return true;
+                } catch (error) {
+                    console.error('Image loading failed:', error);
+                    return false;
+                }
             }
         }
 

@@ -214,7 +214,12 @@
 
             async showLoadingScreen() {
                 const gameContainer = document.getElementById('gameContainer');
-                gameContainer.innerHTML = `
+                const scoreBoard = document.getElementById('scoreBoard');
+                const gameBoard = document.getElementById('gameBoard');
+                
+                // Clear but preserve the scoreboard and gameboard divs
+                scoreBoard.innerHTML = '';
+                gameBoard.innerHTML = `
                     <div class="loading-screen">
                         <h2>Loading images...</h2>
                         <div class="loading-spinner"></div>
@@ -229,7 +234,7 @@
                     if (!response.ok) throw new Error('Failed to load image list');
                     
                     this.availableImages = await response.json();
-                    
+                    console.log('aval images', this.availableImages)
                     // Check if we have enough images
                     const requiredPairs = (this.fieldSize * this.fieldSize) / 2;
                     if (this.availableImages.length < requiredPairs) {

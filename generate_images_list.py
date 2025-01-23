@@ -17,8 +17,9 @@ def clean_filename(filename):
     return f"{clean_name}{ext.lower()}"
 
 
-def convert_to_remote_url(path):
-    return f"https://raw.githubusercontent.com/maximLM/photo-memory-game/main/assets/photos/{path}"
+def convert_to_remote_url(path: Path, script_dir: Path) -> str:
+    relative_path = str(path).replace(str(script_dir), '')
+    return f"https://raw.githubusercontent.com/maximLM/photo-memory-game/main{relative_path}"
 
 
 
@@ -55,9 +56,8 @@ def generate_images_json():
                 image_files.append(file)
 
     # Create image paths (using local paths)
-    image_paths = [str(file) for file in image_files]
     
-    image_paths = [convert_to_remote_url(path) for path in image_paths]
+    image_paths = [convert_to_remote_url(path, script_dir) for path in image_files]
     # Save to images.json in the root directory
     json_path = script_dir / 'images.json'
     with open(json_path, 'w') as f:

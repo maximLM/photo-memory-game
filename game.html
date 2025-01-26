@@ -5,21 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elena's Memory Lane</title>
     <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --primary-light: #ffe3e3;
+            --secondary-color: #4ecdc4;
+            --text-color: #2d3436;
+            --bg-color: #f9f9f9;
+            --card-color: #ff8787;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f0f0;
-            text-align: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .intro-message {
+            margin: 30px auto;
+            padding: 20px;
+            color: var(--text-color);
+            font-style: italic;
+            background-color: var(--primary-light);
+            border-radius: 15px;
+            max-width: 600px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu {
+            margin: 20px auto;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .menu > div {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .menu label {
+            flex: 0 0 auto;
+            margin: 0;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .menu select, .menu input {
+            flex: 1;
+            max-width: 200px;
+            padding: 12px 16px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        /* Style for player names grid */
+        #playerNames {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #playerNames > div {
+            display: flex;
+            align-items: center;
+        }
+
+        #playerNames input {
+            width: 100%;
+            margin: 0;
+            padding: 8px 12px;
+        }
+
+        .menu button {
+            margin-top: 20px;
+            min-width: 200px;
+        }
+
+        .menu select:focus, .menu input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .menu button:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .player {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .current-player {
+            background-color: var(--primary-light);
+            box-shadow: 0 6px 16px rgba(255,107,107,0.15);
+            transform: translateY(-2px);
+        }
+
         .game-board {
             display: grid;
             gap: 10px;
@@ -35,16 +155,6 @@
         }
         .game-board.large {
             max-width: 600px;  /* For 6x6 grid */
-        }
-        .card {
-            aspect-ratio: 1;
-            background-color: #2196F3;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .card:hover {
-            transform: scale(1.05);
         }
         .card img {
             width: 100%;
@@ -69,12 +179,6 @@
             margin-bottom: 20px;
             padding: 10px;
         }
-        .player {
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f8f9fa;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
         .player h3 {
             margin: 0 0 5px 0;
             font-size: 1em;
@@ -84,66 +188,50 @@
             margin: 0;
             font-size: 0.9em;
         }
-        .current-player {
-            background-color: #e3f2fd;
-            box-shadow: 0 2px 4px rgba(33,150,243,0.2);
-        }
-        .menu {
-            margin-bottom: 20px;
-        }
-        .menu select, .menu input {
-            margin: 5px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .menu button {
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .menu button:hover {
-            background-color: #1976D2;
-        }
-        .hidden {
-            display: none;
+        .subtitle {
+            font-size: 0.9em;
+            color: #888;
         }
         .loading-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 200px;
+            min-height: 300px;
+            background-color: var(--primary-light);
+            border-radius: 15px;
+            margin: 20px 0;
         }
+
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #2196F3;
+            width: 60px;
+            height: 60px;
+            border: 5px solid #fff;
+            border-top: 5px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 20px;
         }
+
+        .loading-screen h2 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .intro-message {
-            margin: 20px auto;
-            padding: 15px;
-            color: #666;
-            font-style: italic;
-        }
-        .intro-message p {
-            margin: 10px 0;
-        }
-        .subtitle {
-            font-size: 0.9em;
-            color: #888;
+
+        .container > div {
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>

@@ -25,9 +25,10 @@
 
         .container {
             max-width: 800px;
+            width: 95%;  /* Allow some margin on mobile */
             margin: 0 auto;
             background-color: white;
-            padding: 30px;
+            padding: 20px;  /* Reduced padding for mobile */
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
@@ -144,7 +145,7 @@
             display: grid;
             gap: 10px;
             margin: 20px auto;
-            max-width: 600px;
+            width: 100%;  /* Use full width */
             justify-content: center;
         }
         .game-board.small {
@@ -232,6 +233,42 @@
         .container > div {
             opacity: 1;
             transition: opacity 0.3s ease;
+        }
+
+        /* Responsive card sizes */
+        @media (max-width: 768px) {
+            .game-board.small {
+                max-width: 100%;
+            }
+            .game-board.medium {
+                max-width: 100%;
+            }
+            .game-board.large {
+                max-width: 100%;
+            }
+            
+            /* Adjust card rendering for mobile */
+            .card {
+                width: 100% !important;  /* Override inline styles */
+                height: auto !important;
+                aspect-ratio: 1;  /* Keep cards square */
+            }
+        }
+
+        /* Adjust font sizes for mobile */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .menu label {
+                font-size: 0.9em;
+            }
+            
+            .menu select, .menu input {
+                font-size: 0.9em;
+                padding: 8px 12px;
+            }
         }
     </style>
 </head>
@@ -446,12 +483,14 @@
                     (this.fieldSize === 2 ? 'small' : 
                      this.fieldSize === 4 ? 'medium' : 'large');
                 
-                // Increase card sizes
-                const cardSize = this.fieldSize === 2 ? 180 :  // was 140
-                               this.fieldSize === 4 ? 130 :    // was 100
-                               100;  // was 80 for 6x6
-                               
-                const cardStyle = `width: ${cardSize}px; height: ${cardSize}px;`;
+                // Use viewport-relative sizes for cards
+                const isMobile = window.innerWidth <= 768;
+                const cardSize = isMobile ? '100%' :
+                               this.fieldSize === 2 ? 180 :
+                               this.fieldSize === 4 ? 130 :
+                               100;
+                
+                const cardStyle = isMobile ? '' : `width: ${cardSize}px; height: ${cardSize}px;`;
                 
                 this.cards.forEach((card, index) => {
                     const cardElement = document.createElement('div');

@@ -148,13 +148,13 @@
             justify-content: center;
         }
         .game-board.small {
-            max-width: 300px;  /* For 2x2 grid */
+            max-width: 400px;  /* was 300px - For 2x2 grid */
         }
         .game-board.medium {
-            max-width: 450px;  /* For 4x4 grid */
+            max-width: 580px;  /* was 450px - For 4x4 grid */
         }
         .game-board.large {
-            max-width: 600px;  /* For 6x6 grid */
+            max-width: 700px;  /* was 600px - For 6x6 grid */
         }
         .card img {
             width: 100%;
@@ -446,10 +446,10 @@
                     (this.fieldSize === 2 ? 'small' : 
                      this.fieldSize === 4 ? 'medium' : 'large');
                 
-                // Adjust card size based on field size
-                const cardSize = this.fieldSize === 2 ? 140 :
-                               this.fieldSize === 4 ? 100 : 
-                               80;  // for 6x6
+                // Increase card sizes
+                const cardSize = this.fieldSize === 2 ? 180 :  // was 140
+                               this.fieldSize === 4 ? 130 :    // was 100
+                               100;  // was 80 for 6x6
                                
                 const cardStyle = `width: ${cardSize}px; height: ${cardSize}px;`;
                 

@@ -135,6 +135,12 @@
         <!-- Game Setup Menu -->
         <div id="setupMenu" class="menu">
             <div>
+                <label for="datasetSelect">Photo Collection:</label>
+                <select id="datasetSelect">
+                    <!-- Will be populated dynamically -->
+                </select>
+            </div>
+            <div>
                 <label for="playerCount">Number of Players (2-16):</label>
                 <input 
                     type="number" 
@@ -221,9 +227,7 @@
                 this.scores = new Array(playerNames.length).fill(0);
                 this.currentPlayer = 0;
                 this.isProcessing = false;
-                
-                // List of available images (will be populated)
-                this.availableImages = [];
+                this.selectedDataset = document.getElementById('datasetSelect').value;
                 
                 // Add loading screen
                 this.showLoadingScreen();
@@ -253,12 +257,14 @@
                     const response = await fetch('https://raw.githubusercontent.com/maximLM/photo-memory-game/main/images.json');
                     if (!response.ok) throw new Error('Failed to load image list');
                     
-                    this.availableImages = await response.json();
-                    console.log('aval images', this.availableImages)
+                    const datasets = await response.json();
+                    this.availableImages = datasets[this.selectedDataset] || [];
+                    console.log(`Using dataset: ${this.selectedDataset}`, this.availableImages);
+
                     // Check if we have enough images
                     const requiredPairs = (this.fieldSize * this.fieldSize) / 2;
                     if (this.availableImages.length < requiredPairs) {
-                        throw new Error(`Not enough images. Need ${requiredPairs} but only found ${this.availableImages.length}`);
+                        throw new Error(`Not enough images in "${this.selectedDataset}". Need ${requiredPairs} but only found ${this.availableImages.length}`);
                     }
 
                     // Preload images
@@ -447,8 +453,32 @@
             }
         }
 
-        // Initialize player inputs when page loads
-        window.onload = updatePlayerInputs;
+        async function populateDatasetSelect() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/maximLM/photo-memory-game/main/images.json');
+                if (!response.ok) throw new Error('Failed to load datasets');
+                
+                const datasets = await response.json();
+                const select = document.getElementById('datasetSelect');
+                select.innerHTML = '';
+                
+                Object.keys(datasets).forEach(dataset => {
+                    const option = document.createElement('option');
+                    option.value = dataset;
+                    option.textContent = dataset.charAt(0).toUpperCase() + dataset.slice(1);
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to load datasets:', error);
+                alert('Failed to load photo collections. Please try again.');
+            }
+        }
+
+        // Initialize when page loads
+        window.onload = async () => {
+            await populateDatasetSelect();
+            updatePlayerInputs();
+        };
     </script>
 </body>
 </html>

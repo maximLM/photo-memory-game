@@ -36,11 +36,14 @@ def generate_images_json():
         photos_dir.mkdir(parents=True)
         return
     
-    # Clean filenames and collect image files
-    image_files = []
+    # Dictionary to store images by folder
+    images_by_folder = {}
+    
     for ext in ['.jpg', '.jpeg', '.JPG', '.JPEG']:
-        for file in photos_dir.glob(f'*{ext}'):
+        for file in photos_dir.rglob(f'*{ext}'):
             clean_name = clean_filename(file.name)
+            folder_name = file.parent.name
+            
             if clean_name != file.name:
                 new_path = file.parent / clean_name
                 print(f"Renaming: {file.name} -> {clean_name}")
@@ -51,21 +54,25 @@ def generate_images_json():
                         new_path = file.parent / f"{base}_{counter}{ext}"
                         counter += 1
                 shutil.move(str(file), str(new_path))
-                image_files.append(new_path)
+                path_to_add = new_path
             else:
-                image_files.append(file)
-
-    # Create image paths (using local paths)
+                path_to_add = file
+            
+            # Add to folder dictionary
+            if folder_name not in images_by_folder:
+                images_by_folder[folder_name] = []
+            images_by_folder[folder_name].append(convert_to_remote_url(path_to_add, script_dir))
     
-    image_paths = [convert_to_remote_url(path, script_dir) for path in image_files]
     # Save to images.json in the root directory
     json_path = script_dir / 'images.json'
     with open(json_path, 'w') as f:
-        json.dump(image_paths, f, indent=2)
+        json.dump(images_by_folder, f, indent=2)
     
-    print(f"\nFound {len(image_paths)} images:")
-    for path in image_paths:
-        print(f"  {path}")
+    print(f"\nFound images in {len(images_by_folder)} folders:")
+    for folder, paths in images_by_folder.items():
+        print(f"\n{folder}: {len(paths)} images")
+        for path in paths:
+            print(f"  {path}")
     print(f"\nSaved to: {json_path}")
 
 if __name__ == "__main__":

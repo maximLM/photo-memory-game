@@ -25,6 +25,16 @@
             gap: 10px;
             margin: 20px auto;
             max-width: 600px;
+            justify-content: center;
+        }
+        .game-board.small {
+            max-width: 300px;  /* For 2x2 grid */
+        }
+        .game-board.medium {
+            max-width: 450px;  /* For 4x4 grid */
+        }
+        .game-board.large {
+            max-width: 600px;  /* For 6x6 grid */
         }
         .card {
             aspect-ratio: 1;
@@ -53,16 +63,30 @@
             visibility: hidden;
         }
         .score-board {
-            display: flex;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
             margin-bottom: 20px;
+            padding: 10px;
         }
         .player {
-            padding: 10px 20px;
+            padding: 10px;
             border-radius: 5px;
+            background-color: #f8f9fa;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .player h3 {
+            margin: 0 0 5px 0;
+            font-size: 1em;
+            word-break: break-word;
+        }
+        .player p {
+            margin: 0;
+            font-size: 0.9em;
         }
         .current-player {
             background-color: #e3f2fd;
+            box-shadow: 0 2px 4px rgba(33,150,243,0.2);
         }
         .menu {
             margin-bottom: 20px;
@@ -329,7 +353,16 @@
                 gameBoard.innerHTML = '';
                 gameBoard.style.gridTemplateColumns = `repeat(${this.fieldSize}, 1fr)`;
                 
-                const cardSize = Math.min(100, 500 / this.fieldSize);
+                // Add size class
+                gameBoard.className = 'game-board ' + 
+                    (this.fieldSize === 2 ? 'small' : 
+                     this.fieldSize === 4 ? 'medium' : 'large');
+                
+                // Adjust card size based on field size
+                const cardSize = this.fieldSize === 2 ? 140 :
+                               this.fieldSize === 4 ? 100 : 
+                               80;  // for 6x6
+                               
                 const cardStyle = `width: ${cardSize}px; height: ${cardSize}px;`;
                 
                 this.cards.forEach((card, index) => {
